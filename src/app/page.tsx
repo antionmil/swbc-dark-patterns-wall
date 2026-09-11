@@ -18,9 +18,9 @@ export default function Home() {
           Six small obstructions
         </h1>
         <p className="mt-5 max-w-[64ch] text-[16px] leading-relaxed text-body">
-          Six consent dialogs and sign-up forms, photographed on a first visit. The awkward part of
-          each one is pinned and counted. Every line under a pin describes something you can see in
-          the picture above it.
+          Six screens — four consent dialogs, a sign-up form and a page of search results —
+          photographed on a first visit. The awkward part of each one is pinned and counted. Every
+          line under a pin describes something you can see in the picture above it.
         </p>
         <p className="mt-3.5 max-w-[64ch] text-[15px] leading-relaxed text-dim">
           Nothing here says what any of these companies meant to do. I have no way to know that, and

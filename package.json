@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "build:check": "NEXT_DIST_DIR=.next-build next build",
     "dev:webpack": "NODE_OPTIONS=--max-old-space-size=2048 next dev --webpack",
-    "attack": "node qa/attack.mjs"
+    "attack": "node qa/attack.mjs",
+    "audit": "node qa/audit-claims.mjs",
+    "check": "pnpm typecheck && pnpm attack && pnpm audit"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

@@ -27,6 +27,9 @@ export type Exhibit = {
   slug: string;
   /** the pattern family, not a verdict */
   family: string;
+  /** what kind of screen the capture is. The lede counts these, and
+   *  qa/audit-claims.mjs checks the lede against them. */
+  surface: "consent dialog" | "sign-up form" | "search results";
   company: string;
   host: string;
   url: string;
@@ -48,6 +51,7 @@ export const EXHIBITS: Exhibit[] = [
   {
     id: "01",
     slug: "declining-costs-money",
+    surface: "consent dialog",
     family: "Consent or pay",
     company: "The Guardian",
     host: "theguardian.com",
@@ -80,7 +84,7 @@ export const EXHIBITS: Exhibit[] = [
       { label: "Cost to accept", value: "nothing" },
       { label: "Cost to decline, as offered here", value: "€5 a month", heavy: true },
       { label: "Partners named", value: "139" },
-      { label: "Controls at this step", value: "Accept all · Reject all and subscribe" },
+      { label: "Choices offered at this step", value: "Accept all · Reject all and subscribe" },
     ],
     limit:
       "The small print points to a “Privacy settings” link at the foot of any page. This exhibit is about the first screen only, and says nothing about what that later route offers.",
@@ -88,6 +92,7 @@ export const EXHIBITS: Exhibit[] = [
   {
     id: "02",
     slug: "scarcity-everywhere",
+    surface: "search results",
     family: "Scarcity",
     company: "Booking.com",
     host: "booking.com",
@@ -122,6 +127,7 @@ export const EXHIBITS: Exhibit[] = [
   {
     id: "03",
     slug: "no-way-to-say-no",
+    surface: "consent dialog",
     family: "Obstruction",
     company: "Superdry",
     host: "superdry.com",
@@ -156,6 +162,7 @@ export const EXHIBITS: Exhibit[] = [
   {
     id: "04",
     slug: "ticked-on-arrival",
+    surface: "sign-up form",
     family: "Preselection",
     company: "Holland & Barrett",
     host: "hollandandbarrett.com",
@@ -190,6 +197,7 @@ export const EXHIBITS: Exhibit[] = [
   {
     id: "05",
     slug: "a-second-switch",
+    surface: "consent dialog",
     family: "Preselection",
     company: "Nasty Gal",
     host: "nastygal.com",
@@ -224,6 +232,7 @@ export const EXHIBITS: Exhibit[] = [
   {
     id: "06",
     slug: "the-button-says-shopping",
+    surface: "consent dialog",
     family: "Bundled consent",
     company: "J.Crew",
     host: "jcrew.com",

@@ -24,7 +24,7 @@ const mono = IBM_Plex_Mono({
 
 const TITLE = "Six small obstructions";
 const DESC =
-  "Six browser captures of consent dialogs and sign-up forms, with the awkward part pinned and counted. Described, never guessed at.";
+  "Six browser captures — four consent dialogs, a sign-up form and a page of search results — with the awkward part pinned and counted. Described, never guessed at.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://darkpatterns.onedaybuilt.com"),

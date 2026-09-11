@@ -4,8 +4,9 @@ Day 9 of [onedaybuilt.com](https://onedaybuilt.com) — one website a day, all S
 
 Live: **https://darkpatterns.onedaybuilt.com**
 
-Six consent dialogs and sign-up forms, photographed on a first visit, with the
-awkward part pinned and counted.
+Six screens — four consent dialogs, a sign-up form and a page of search
+results — photographed on a first visit, with the awkward part pinned and
+counted.
 
 ## What this is
 

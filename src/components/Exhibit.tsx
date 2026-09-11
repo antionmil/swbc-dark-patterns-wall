@@ -13,9 +13,13 @@ export function Exhibit({ e }: { e: Row }) {
       <header className="mb-5">
         <p className="font-mono text-[10.5px] uppercase tracking-[.2em] text-dim">
           <span className="text-pin">{e.id}</span>
-          <span className="mx-2 text-rule">/</span>
+          <span className="mx-2" aria-hidden="true">
+            ·
+          </span>
           {e.family}
-          <span className="mx-2 text-rule">/</span>
+          <span className="mx-2" aria-hidden="true">
+            ·
+          </span>
           {e.host}
         </p>
         <h2 className="mt-2.5 max-w-[26ch] font-display text-[clamp(21px,3vw,27px)] font-bold leading-[1.15] tracking-[-.015em] text-ink text-balance sm:max-w-[34ch]">
