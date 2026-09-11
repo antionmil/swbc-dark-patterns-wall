@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/* ONE file to change per site. Day 9 is a wall of evidence: six browser
+   captures with numbered pins on them. The page has to recede so the captures
+   read as captures, which means a dark ground — the screenshots are all
+   light-coloured web pages, and a dark page makes each one look like a
+   photograph pinned to a board rather than part of this site.
+
+   Deliberately nothing in common with day 6 (white ground, burnt orange),
+   day 7 (dark navy, ochre) or day 8 (warm paper, green and oxblood). Day 7 was
+   also dark, so this one is neutral-cold rather than navy, and the accent is a
+   hot pink that exists for one job only: the pin. Nothing else on the page is
+   allowed to use it, because a pin that shares its colour with a link stops
+   reading as a pin.
+
+   CONTRAST — MEASURED, and measured against the surface each colour actually
+   sits on, not the page behind it. Day 2 shipped three tokens measured against
+   the page with a comment claiming they passed; all three failed where they
+   were really used.
+
+   on --color-page #0E1014:
+     ink   #F3F5F9  17.44:1  AAA
+     body  #C6CCD9  11.82:1  AAA
+     dim   #9099A9   6.63:1  AA
+     pin   #FF4D88   6.05:1  AA
+   on --color-panel #171A21 (the exhibit card):
+     ink   15.95:1  AAA  ·  body 10.81:1  AAA  ·  dim 6.06:1  AA
+     pin    5.53:1  AA
+   on --color-raised #1E222B (the fact rows):
+     ink   14.59:1  AAA  ·  body  9.89:1  AAA  ·  dim 5.55:1  AA
+     pin    5.06:1  AA
+   the pin itself, which carries a numeral:
+     --color-pin-ink #14060C on --color-pin #FF4D88   6.29:1  AA
+
+   --color-rule is 1.42:1 on the page. It carries no text and no meaning the
+   fill does not already carry, so it sits below 3:1 on purpose — it is a
+   hairline, not an edge. */
+@theme {
+  --color-page: #0e1014;
+  --color-panel: #171a21;
+  --color-raised: #1e222b;
+  --color-rule: #2a2f3a;
+
+  --color-ink: #f3f5f9;
+  --color-body: #c6ccd9;
+  --color-dim: #9099a9;
+
+  /* the pin, and nothing else */
+  --color-pin: #ff4d88;
+  --color-pin-ink: #14060c;
+
+  --font-display: var(--font-display-loaded), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-body-loaded), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-mono-loaded), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* One committed look. There is no light variant: the whole page is a mount for
+   six light-coloured screenshots, and inverting the ground would collapse the
+   separation between the mount and the thing mounted on it. Every colour is
+   painted explicitly so nothing borrows a host background. */
+html,
+body {
+  background: var(--color-page);
+  color: var(--color-body);
+  color-scheme: dark;
+}
+body {
+  font-family: var(--font-body);
+}
+:focus-visible {
+  outline: 2px solid var(--color-pin);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
