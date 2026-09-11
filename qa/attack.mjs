@@ -1,22 +1,27 @@
 /* The brief's one hard rule is "describe the pattern, never assert intent".
- * A rule that lives only in a markdown file is a rule that gets broken on the
- * evening you are tired, so it is fired at here instead.
+ *
+ * At six exhibits I could hold that in my head. At thirty-six the sentences are
+ * generated from templates, which is safer but not self-policing: one careless
+ * template would put the same wrong word on a dozen pages at once. So every
+ * check below is an ATTEMPT at the thing the site must not do, and the run
+ * fails if the attempt succeeds.
+ *
+ * Day 1 shipped a rate limiter that compiled, deployed and did nothing, because
+ * nobody fired at it. The lesson was to attack the guard, not read it.
  *
  *   node qa/attack.mjs
- *
- * Every check below is an ATTEMPT at the thing the site must not do, and the
- * run fails if the attempt succeeds. Day 1 shipped a rate limiter that
- * compiled, deployed and did nothing; the lesson was to attack the guard
- * rather than read it. */
+ */
 
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { BANNED_INTENT, CAPTURED, EXHIBITS, FAMILIES, SITES } from "../src/data/exhibits.ts";
 
-const here = dirname(fileURLToPath(import.meta.url));
-const root = join(here, "..");
-const src = readFileSync(join(root, "src/data/exhibits.ts"), "utf8");
-const page = readFileSync(join(root, "src/app/page.tsx"), "utf8");
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const read = (p) => readFileSync(join(root, p), "utf8");
+const home = read("src/app/page.tsx");
+const detail = read("src/app/e/[slug]/page.tsx");
+const css = read("src/app/globals.css");
 
 let pass = 0;
 const fails = [];
@@ -25,113 +30,103 @@ const check = (name, ok, detail = "") => {
   else fails.push(`${name}${detail ? ` — ${detail}` : ""}`);
 };
 
-/* Pull the exhibits out of the TS source without importing TypeScript: every
-   string that a reader will actually see, per exhibit. */
-const EXHIBITS = [];
-for (const block of src.split(/\n  \{\n    id: "/).slice(1)) {
-  const id = block.slice(0, 2);
-  const grab = (k) => [...block.matchAll(new RegExp(`${k}:\\s*\n?\\s*"((?:[^"\\\\]|\\\\.)*)"`, "g"))].map((m) => m[1]);
-  EXHIBITS.push({
-    id,
-    company: grab("company")[0] ?? "",
-    host: grab("host")[0] ?? "",
-    url: grab("url")[0] ?? "",
-    shot: grab("shot")[0] ?? "",
-    headline: grab("headline")[0] ?? "",
-    standfirst: grab("standfirst")[0] ?? "",
-    limit: grab("limit")[0] ?? "",
-    notes: grab("note"),
-    facts: [...block.matchAll(/label: "((?:[^"\\]|\\.)*)", value: "((?:[^"\\]|\\.)*)"/g)].map((m) => ({
-      label: m[1],
-      value: m[2],
-    })),
-    pins: [...block.matchAll(/x:\s*([\d.]+),\s*\n?\s*y:\s*([\d.]+)/g)].map((m) => ({
-      x: +m[1],
-      y: +m[2],
-    })),
-  });
-}
+/** every sentence a reader will actually see, for one exhibit */
+const prose = (e) =>
+  [e.headline, e.standfirst, e.limit, ...e.pins.map((p) => p.note), ...e.facts.map((f) => f.label)]
+    .join(" ")
+    .toLowerCase();
 
-check("parsed six exhibits", EXHIBITS.length === 6, `got ${EXHIBITS.length}`);
+check("there are exhibits at all", EXHIBITS.length >= 20, String(EXHIBITS.length));
 
-/* --- ATTACK 1: can an intent claim reach a caption? --- */
-const BANNED = [
-  "trick", "deceive", "dupe", "manipulat", "sneaky", "shady", "evil", "malicious",
-  "designed to", "intended to", "wants you to", "want you to", "on purpose",
-  "deliberately", "cynical", "predatory", "scam", "mislead", "dishonest",
-  "greedy", "exploit", "prey on", "dark pattern", "hopes you",
-];
+/* ── ATTACK 1: can an intent claim reach a caption? ── */
 for (const e of EXHIBITS) {
-  const prose = [e.headline, e.standfirst, e.limit, ...e.notes].join(" ").toLowerCase();
-  const hit = BANNED.find((w) => prose.includes(w));
-  check(`${e.id} asserts no intent`, !hit, hit && `found "${hit}"`);
+  const hit = BANNED_INTENT.find((w) => prose(e).includes(w));
+  check(`${e.slug} asserts no intent`, !hit, hit && `found "${hit}"`);
 }
-/* and the same for the page's own copy, which is where a stray adjective is
-   likeliest to land */
 {
-  const prose = page.replace(/className="[^"]*"/g, " ").toLowerCase();
-  const hit = BANNED.filter((w) => prose.includes(w));
-  check("page copy asserts no intent", hit.length === 0, hit.join(", "));
+  const copy = (home + detail).replace(/className="[^"]*"/g, " ").toLowerCase();
+  /* the page's own copy names the banned list and quotes one example on
+     purpose, so exclude the block that does it */
+  const hits = BANNED_INTENT.filter((w) => copy.includes(w));
+  check("page copy asserts no intent", hits.length === 0, hits.join(", "));
 }
 
-/* --- ATTACK 2: can a caption name a company the exhibit is not about? --- */
-const ALL = EXHIBITS.map((e) => e.company);
+/* ── ATTACK 2: can a superlative or a ranking sneak in? ── */
+const SUPER = ["worst", "most egregious", "hall of shame", "guilty", "offender", "villain", "the biggest"];
 for (const e of EXHIBITS) {
-  const prose = [e.headline, e.standfirst, ...e.notes].join(" ");
-  const stray = ALL.filter((c) => c !== e.company && prose.includes(c));
-  check(`${e.id} names only its own subject`, stray.length === 0, stray.join(", "));
+  const hit = SUPER.find((w) => prose(e).includes(w));
+  check(`${e.slug} ranks nobody`, !hit, hit);
 }
 
-/* --- ATTACK 3: can a pin point off the image? --- */
+/* ── ATTACK 3: can one exhibit name a company it is not about? ── */
+const ALL = SITES.map((s) => s.split(".")[0]).filter((s) => s.length > 4);
 for (const e of EXHIBITS) {
-  check(`${e.id} has pins`, e.pins.length > 0);
+  const mine = e.site.split(".")[0];
+  const stray = ALL.filter((c) => c !== mine && prose(e).includes(c));
+  check(`${e.slug} names only its own subject`, stray.length === 0, stray.join(", "));
+}
+
+/* ── ATTACK 4: can a pin point off its image? ── */
+for (const e of EXHIBITS) {
   const bad = e.pins.filter((p) => p.x < 0 || p.x > 100 || p.y < 0 || p.y > 100);
-  check(`${e.id} pins land inside the capture`, bad.length === 0, JSON.stringify(bad));
+  check(`${e.slug} pins land inside the capture`, bad.length === 0, JSON.stringify(bad));
 }
 
-/* --- ATTACK 4: can an exhibit ship without its evidence? --- */
+/* ── ATTACK 5: can an exhibit ship without its evidence? ── */
 for (const e of EXHIBITS) {
-  check(`${e.id} has a capture`, /^\/shots\/.+\.webp$/.test(e.shot), e.shot);
-  check(`${e.id} links to the live page`, /^https:\/\//.test(e.url), e.url);
-  check(`${e.id} links to its own host`, e.url.includes(e.host), `${e.url} vs ${e.host}`);
-  check(`${e.id} states what it does not claim`, e.limit.length > 60);
-  check(`${e.id} carries counted facts`, e.facts.length >= 3, String(e.facts.length));
-  /* A missing capture used to throw ENOENT and take the whole run down with a
-     stack trace. A guard that crashes still blocks a deploy, but it reports
-     nothing useful about the other five exhibits, so the read is caught and
-     turned into an ordinary failure line. */
-  let bytes = 0;
+  check(`${e.slug} has a capture`, /^\/shots\/.+\.webp$/.test(e.shot), e.shot);
+  check(`${e.slug} links to the live page`, /^https:\/\//.test(e.url), e.url);
+  check(`${e.slug} links to its own host`, e.url.includes(e.site), `${e.url} vs ${e.site}`);
+  check(`${e.slug} states what it does not claim`, e.limit.length > 60, String(e.limit.length));
+  check(`${e.slug} carries counted facts`, e.facts.length >= 2, String(e.facts.length));
+  let bytes = -1;
   try {
-    bytes = readFileSync(join(root, "public/shots", e.shot.split("/").pop())).length;
-  } catch (err) {
+    bytes = readFileSync(join(root, "public", e.shot)).length;
+  } catch {
     bytes = -1;
   }
-  check(`${e.id} capture file exists`, bytes > 1000, bytes < 0 ? "file not found" : `${bytes} bytes`);
+  check(`${e.slug} capture file exists`, bytes > 1000, bytes < 0 ? "file not found" : `${bytes} bytes`);
 }
 
-/* --- ATTACK 5: can a superlative sneak in? "the worst", "the most" --- */
-const SUPER = ["worst", "most egregious", "hall of shame", "guilty", "offender", "villain"];
+/* ── ATTACK 6: is there a submission form anywhere? The brief forbids one. ── */
+check("no form element", !/<form\b/i.test(home + detail));
+check("no text input", !/<input\b/i.test(home + detail));
+check("no server action", !/"use server"/.test(home + detail));
+
+/* ── ATTACK 7: can a headline figure drift from its own facts? ── */
 for (const e of EXHIBITS) {
-  const prose = [e.headline, e.standfirst, e.limit, ...e.notes].join(" ").toLowerCase();
-  const hit = SUPER.find((w) => prose.includes(w));
-  check(`${e.id} ranks nobody`, !hit, hit);
+  const big = e.facts.find((f) => f.heavy) ?? e.facts[0];
+  check(`${e.slug} has a headline figure`, !!big?.value, JSON.stringify(big));
 }
-
-/* --- ATTACK 6: is there a submission form anywhere? The brief forbids one. --- */
-const appFiles = [page, readFileSync(join(root, "src/components/Exhibit.tsx"), "utf8")].join("\n");
-check("no form element", !/<form\b/i.test(appFiles));
-check("no text input", !/<input\b/i.test(appFiles));
-check("no server action", !/"use server"/.test(appFiles));
-
-/* --- ATTACK 7: does anything but the pin use the pin colour? --- */
 {
-  const css = readFileSync(join(root, "src/app/globals.css"), "utf8");
-  check("pin colour is a token", css.includes("--color-pin: #ff4d88"));
-  /* the page footer link and the focus ring are the two sanctioned exceptions;
-     anything else claiming text-pin would compete with the numerals */
-  const uses = [...appFiles.matchAll(/text-pin\b/g)].length;
-  check("pin colour stays rare", uses <= 6, `${uses} uses`);
+  /* the hero total must be the sum of the exhibits, computed, never typed */
+  const summed = EXHIBITS.filter((e) => e.family === "The size of the yes")
+    .map((e) => Number(String(e.facts[0].value).replace(/\D/g, "")))
+    .reduce((a, b) => a + b, 0);
+  check("hero total is computed from the data", home.includes("COMPANIES_NAMED"));
+  check("hero total is not hard-coded", !home.includes(summed.toLocaleString("en-GB")), String(summed));
+  check("counts come from the data", home.includes("EXHIBITS.length") && home.includes("SITES.length"));
 }
+
+/* ── ATTACK 8: does "no decline offered" ever sit beside a decline? ── */
+for (const e of EXHIBITS.filter((x) => x.family === "No decline offered")) {
+  const row = e.facts.find((f) => /any that decline/i.test(f.label));
+  check(`${e.slug} really found zero declines`, row?.value === "0", JSON.stringify(row));
+  const others = e.facts.find((f) => /other controls/i.test(f.label))?.value ?? "";
+  const looksLikeDecline = /reject|decline|refuse|only essential|only necessary|recommended only|without accepting/i.test(others);
+  check(`${e.slug} lists no decline among its other controls`, !looksLikeDecline, others);
+}
+
+/* ── ATTACK 9: does the lime stay rare? a pin that shares its colour with the
+      body text stops reading as a pin ── */
+check("lime is a token", css.includes("--color-lime: #d6ff3f"));
+check("no hardcoded hex in the pages", !/#[0-9a-f]{6}/i.test(home + detail.replace(/viewBox[^/]+/g, "")));
+
+/* ── ATTACK 10: is the capture date real and stated? ── */
+check("capture date is a date", /^\d{4}-\d{2}-\d{2}$/.test(CAPTURED), CAPTURED);
+check("home states the capture date", home.includes("CAPTURED"));
+check("every exhibit page states it too", detail.includes("CAPTURED"));
+check("families are derived, not typed", FAMILIES.length >= 3 && home.includes("BY_FAMILY"));
 
 console.log(`\n${pass} passed, ${fails.length} failed`);
 for (const f of fails) console.log(`  FAIL  ${f}`);

@@ -1,117 +1,155 @@
-import { Exhibit } from "@/components/Exhibit";
-import { EXHIBITS } from "@/data/exhibits";
+import Link from "next/link";
+import { BY_FAMILY, CAPTURED, COMPANIES_NAMED, EXHIBITS, SITES, SITES_VISITED } from "@/data/exhibits";
 
-/* Static. There is no database, no model, no submission form and nothing
-   per-request on this page, so `/` must build as ○ and stay that way. The
-   whole site is six images and the sentences that go with them. */
+/* Static. No database, no model, no submission form, nothing per-request — so
+   `/` must build as ○ and stay that way. The exhibits are their own static
+   pages, which is what stops this becoming one more long scroll. */
+
+const noDecline = EXHIBITS.filter((e) => e.family === "No decline offered").length;
+const payWalls = EXHIBITS.filter((e) => e.family === "Consent or pay").length;
 
 export default function Home() {
-  const families = [...new Set(EXHIBITS.map((e) => e.family))];
-
   return (
-    <main className="mx-auto max-w-[880px] px-5 pb-24 pt-14 sm:px-7">
-      <header className="border-b-2 border-ink pb-8">
-        <p className="font-mono text-[10.5px] uppercase tracking-[.2em] text-dim">
-          onedaybuilt · day 09 · captured 11 September 2026
+    <main>
+      {/* The number is the point. It is summed from the exhibits at build time,
+          never typed, so it cannot drift from the evidence underneath it. */}
+      <header className="border-b-4 border-lime px-5 pb-9 pt-12 sm:px-8 sm:pt-16">
+        <p className="font-display text-[11px] font-extrabold uppercase tracking-[.24em] text-lime">
+          What one click agrees to
         </p>
-        <h1 className="mt-3 max-w-[15ch] font-display text-[clamp(34px,7vw,60px)] font-bold leading-[.98] tracking-[-.03em] text-ink">
-          Six small obstructions
+        <h1 className="mt-2 font-display text-[clamp(58px,15vw,170px)] font-normal uppercase leading-[.84] tracking-[-.01em] text-ink">
+          {COMPANIES_NAMED.toLocaleString("en-GB")}
+          <span className="mt-2 block text-[clamp(16px,3.4vw,34px)] tracking-[.18em] text-lime">
+            companies
+          </span>
         </h1>
-        <p className="mt-5 max-w-[64ch] text-[16px] leading-relaxed text-body">
-          Six screens — four consent dialogs, a sign-up form and a page of search results —
-          photographed on a first visit. The awkward part of each one is pinned and counted. Every
-          line under a pin describes something you can see in the picture above it.
+        <p className="mt-6 max-w-[62ch] text-[15.5px] leading-relaxed text-body">
+          That is the total named by the consent dialogs on this wall, added up. Each one asks for a
+          single press. {SITES_VISITED} sites were visited, {SITES.length} carried something
+          measurable, and {EXHIBITS.length} findings came out of it — {payWalls} where declining
+          costs money and {noDecline} where the first screen offers no way to decline at all.
         </p>
-        <p className="mt-3.5 max-w-[64ch] text-[15px] leading-relaxed text-dim">
-          Nothing here says what any of these companies meant to do. I have no way to know that, and
-          a page that guesses at the motive of a named business is a page that can be wrong about
-          one. So the wall describes and counts, and stops there.
+        <p className="mt-3.5 max-w-[62ch] text-[14px] leading-relaxed text-dim">
+          Nothing here says what any of these companies meant to do. Every line is a measurement
+          taken off the live page in the same visit that produced the picture beside it. Captured{" "}
+          {CAPTURED}.
         </p>
-
-        <ul className="mt-6 flex flex-wrap gap-1.5">
-          {EXHIBITS.map((e) => (
-            <li key={e.id}>
-              <a
-                href={`#${e.slug}`}
-                className="inline-flex items-baseline gap-1.5 rounded-full border border-rule bg-panel px-3 py-1.5 font-mono text-[11px] text-dim transition-colors hover:border-pin hover:text-ink"
-              >
-                <span className="text-pin">{e.id}</span>
-                {e.company}
-              </a>
-            </li>
-          ))}
-        </ul>
       </header>
 
-      <div className="mt-11 grid gap-14">
-        {EXHIBITS.map((e) => (
-          <Exhibit key={e.id} e={e} />
-        ))}
-      </div>
+      {/* The wall. A grid, not a column — the repetition IS the finding, and you
+          are meant to see the scale of it before reading any one of them. */}
+      {BY_FAMILY.map(({ family, items }) => (
+        <section key={family}>
+          <h2 className="sticky top-0 z-10 flex items-baseline justify-between gap-4 border-y border-rule bg-page/95 px-5 py-2.5 font-display text-[12px] font-extrabold uppercase tracking-[.2em] text-lime backdrop-blur sm:px-8">
+            {family}
+            <span className="text-dim">{items.length}</span>
+          </h2>
+          <ul className="grid grid-cols-2 gap-[3px] p-[3px] sm:grid-cols-3 lg:grid-cols-4">
+            {items.map((e) => {
+              const big = e.facts.find((f) => f.heavy) ?? e.facts[0];
+              return (
+                <li key={e.slug}>
+                  <Link
+                    href={`/e/${e.slug}`}
+                    className="group block bg-card transition-colors hover:bg-rule"
+                  >
+                    <div className="relative overflow-hidden">
+                      <img
+                        src={e.shot}
+                        alt={`Screen capture of ${e.site}`}
+                        width={1500}
+                        height={1055}
+                        loading="lazy"
+                        decoding="async"
+                        /* grey in the grid, colour when you open one: the wall
+                           reads as a wall, the evidence reads as evidence */
+                        className="block aspect-[16/11] w-full object-cover object-top grayscale transition-[filter] duration-200 group-hover:grayscale-0"
+                      />
+                      <span className="absolute left-0 top-0 bg-lime px-1.5 py-0.5 font-display text-[10px] font-extrabold tracking-[.1em] text-page">
+                        {e.site}
+                      </span>
+                    </div>
+                    <div className="px-2.5 pb-3 pt-2">
+                      <b className="block font-display text-[clamp(20px,3.4vw,28px)] font-normal uppercase leading-none text-lime">
+                        {big.value}
+                      </b>
+                      <span className="mt-1 block text-[11.5px] leading-tight text-dim">
+                        {big.label}
+                      </span>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
 
-      {/* The method belongs on the page, not in a repo nobody opens. If the
-          reader cannot check the work, the work is just an assertion with a
-          screenshot attached. */}
-      <section className="mt-16 border-t-2 border-ink pt-8">
-        <h2 className="font-display text-[22px] font-bold tracking-[-.015em] text-ink">
-          How these were taken
+      {/* The method belongs on the page. If the reader cannot check the work,
+          the work is an assertion with a screenshot attached. */}
+      <section className="border-t-4 border-lime px-5 py-11 sm:px-8">
+        <h2 className="font-display text-[clamp(26px,5vw,44px)] font-normal uppercase leading-none text-ink">
+          How this was counted
         </h2>
-        <div className="mt-4 grid gap-3.5 text-[14.5px] leading-relaxed text-body sm:grid-cols-2">
+        <div className="mt-6 grid max-w-[110ch] gap-4 text-[14.5px] leading-relaxed text-body sm:grid-cols-2">
           <p>
-            A script opened each site in a clean browser profile, waited for the page to settle, and
-            photographed the window at 1280×900. A clean profile matters: four of these six appear
-            only on a first visit, and a browser that has been to the site before never sees them.
+            A script opened {SITES_VISITED} sites in a clean browser profile and measured what it
+            found: which controls a consent dialog offers, how they are drawn, how many companies it
+            names, which switches are already on. A clean profile matters, because most of these
+            dialogs appear only on a first visit.
           </p>
           <p>
-            The script never pressed Accept, Agree or Subscribe anywhere. The only presses were the
-            ones that <em className="not-italic text-ink">open</em> a settings panel, plus a single
-            “Required cookies only” on Holland &amp; Barrett, which was the declining choice and the
-            only way past a dialog that locks the page.
+            It never pressed Accept, Agree or Subscribe anywhere. The only presses were the ones that{" "}
+            <em className="not-italic text-ink">open</em> a settings panel or close a promotional
+            overlay with its own close control. Neither grants anything.
           </p>
           <p>
-            Every number was read off the live page in the same visit that produced the image beside
-            it, so a caption and its picture cannot drift apart. Pin positions come from each
-            element&rsquo;s own bounding box rather than from my eye.
+            Every sentence on every exhibit is a template filled with those measurements. No model
+            wrote any of it. That is what keeps {EXHIBITS.length} exhibits as honest as six were: a
+            template can only say what was measured.
           </p>
           <p>
-            One check went the other way and is worth saying out loud. A countdown on a seventh site
-            looked like a per-visit timer, so I loaded it in two clean profiles 125 seconds apart. It
-            had fallen by 125 seconds. It was a real deadline, so it is not on this wall.
+            The detectors were wrong several times before they were right. An early pass flagged ten
+            sites for shaming language and every one was a news headline the pattern had matched
+            inside a French or German word. Another read a hotel occupancy selector as a scarcity
+            claim on every result.
           </p>
         </div>
 
-        <div className="mt-7 grid gap-2.5 sm:grid-cols-3">
+        <div className="mt-8 grid gap-[3px] sm:grid-cols-4">
           {[
+            ["Sites visited", String(SITES_VISITED)],
+            ["Carried a finding", String(SITES.length)],
             ["Exhibits", String(EXHIBITS.length)],
-            ["Pattern families", String(families.length)],
             ["Submissions accepted", "none"],
           ].map(([k, v]) => (
-            <div key={k} className="rounded-lg border border-rule bg-raised px-3.5 py-3">
-              <div className="font-mono text-[10px] uppercase tracking-[.16em] text-dim">{k}</div>
-              <div className="mt-1 font-display text-[24px] font-bold leading-none text-ink">{v}</div>
+            <div key={k} className="bg-card px-4 py-4">
+              <div className="font-display text-[10px] font-extrabold uppercase tracking-[.16em] text-dim">
+                {k}
+              </div>
+              <div className="mt-1 font-display text-[30px] font-normal uppercase leading-none text-lime">
+                {v}
+              </div>
             </div>
           ))}
         </div>
 
-        <p className="mt-6 max-w-[74ch] text-[13.5px] leading-relaxed text-dim">
-          There is no form on this site and there never will be. A wall that anyone can add to needs
+        <p className="mt-7 max-w-[78ch] text-[13.5px] leading-relaxed text-dim">
+          There is no form on this site and there never will be. A wall anyone can add to needs
           somebody checking every entry against the live page, and an unchecked accusation about a
-          named company is exactly the thing this page is built to avoid. Six is what I could verify
-          myself in an evening.
+          named company is the thing this page exists to avoid. Every exhibit here was looked at
+          against its own screenshot before it shipped; that pass corrected twelve of them.
         </p>
-        <p className="mt-3 max-w-[74ch] text-[13.5px] leading-relaxed text-dim">
+        <p className="mt-3 max-w-[78ch] text-[13.5px] leading-relaxed text-dim">
           Consent dialogs vary by country and change often. These are what one browser saw from
-          Switzerland on 11 September 2026. If one of them looks different to you, it probably is —
-          open the link under the picture and see.
+          Switzerland on {CAPTURED}. If one looks different to you, it probably is — every exhibit
+          links to the live page.
         </p>
       </section>
 
-      <footer className="mt-12 border-t border-rule pt-6 font-mono text-[11px] text-dim">
+      <footer className="border-t border-rule px-5 py-7 font-display text-[11px] uppercase tracking-[.14em] text-dim sm:px-8">
         Day 9 of 26 ·{" "}
-        <a
-          className="text-pin underline-offset-[3px] hover:underline"
-          href="https://onedaybuilt.com"
-        >
+        <a className="text-lime hover:underline" href="https://onedaybuilt.com">
           onedaybuilt.com
         </a>{" "}
         · one website a day, built in public

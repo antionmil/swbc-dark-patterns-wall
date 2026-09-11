@@ -1,30 +1,27 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import { Space_Grotesk, Inter, IBM_Plex_Mono } from "next/font/google";
+import { Anton, Archivo } from "next/font/google";
 import "./globals.css";
 
-const display = Space_Grotesk({
+/* Anton for the figures, Archivo for everything else. Nothing in common with
+   day 6, 7, 8 or the version this replaces — four sites in a row sharing a
+   typeface reads as one site shipped four times. */
+const display = Anton({
   subsets: ["latin"],
-  weight: ["500", "700"],
+  weight: "400",
   variable: "--font-display-loaded",
   display: "swap",
 });
-const body = Inter({
+const body = Archivo({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "600", "800"],
   variable: "--font-body-loaded",
   display: "swap",
 });
-const mono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-mono-loaded",
-  display: "swap",
-});
 
-const TITLE = "Six small obstructions";
+const TITLE = "What one click agrees to";
 const DESC =
-  "Six browser captures — four consent dialogs, a sign-up form and a page of search results — with the awkward part pinned and counted. Described, never guessed at.";
+  "Ninety sites measured. Every consent dialog counted: how many companies one press covers, which of them offer no way to decline, and which charge you for declining. Described, never guessed at.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://darkpatterns.onedaybuilt.com"),
@@ -44,7 +41,7 @@ export const metadata: Metadata = {
         url:
           "data:image/svg+xml," +
           encodeURIComponent(
-            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#0E1014"/><circle cx="16" cy="16" r="9" fill="#FF4D88"/><text x="16" y="21" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="700" fill="#14060C" text-anchor="middle">1</text></svg>`,
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="#0B0B0B"/><rect x="4" y="4" width="24" height="24" fill="#D6FF3F"/><rect x="9" y="9" width="14" height="4" fill="#0B0B0B"/><rect x="9" y="16" width="14" height="4" fill="#0B0B0B"/></svg>`,
           ),
         type: "image/svg+xml",
       },
@@ -54,7 +51,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
+    <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body className="min-h-dvh antialiased">
         {children}
         <Analytics />

@@ -1,63 +1,54 @@
 @import "tailwindcss";
 
-/* ONE file to change per site. Day 9 is a wall of evidence: six browser
-   captures with numbered pins on them. The page has to recede so the captures
-   read as captures, which means a dark ground — the screenshots are all
-   light-coloured web pages, and a dark page makes each one look like a
-   photograph pinned to a board rather than part of this site.
-
-   Deliberately nothing in common with day 6 (white ground, burnt orange),
-   day 7 (dark navy, ochre) or day 8 (warm paper, green and oxblood). Day 7 was
-   also dark, so this one is neutral-cold rather than navy, and the accent is a
-   hot pink that exists for one job only: the pin. Nothing else on the page is
-   allowed to use it, because a pin that shares its colour with a link stops
-   reading as a pin.
-
-   CONTRAST — MEASURED, and measured against the surface each colour actually
-   sits on, not the page behind it. Day 2 shipped three tokens measured against
-   the page with a comment claiming they passed; all three failed where they
-   were really used.
-
-   on --color-page #0E1014:
-     ink   #F3F5F9  17.44:1  AAA
-     body  #C6CCD9  11.82:1  AAA
-     dim   #9099A9   6.63:1  AA
-     pin   #FF4D88   6.05:1  AA
-   on --color-panel #171A21 (the exhibit card):
-     ink   15.95:1  AAA  ·  body 10.81:1  AAA  ·  dim 6.06:1  AA
-     pin    5.53:1  AA
-   on --color-raised #1E222B (the fact rows):
-     ink   14.59:1  AAA  ·  body  9.89:1  AAA  ·  dim 5.55:1  AA
-     pin    5.06:1  AA
-   the pin itself, which carries a numeral:
-     --color-pin-ink #14060C on --color-pin #FF4D88   6.29:1  AA
-
-   --color-rule is 1.42:1 on the page. It carries no text and no meaning the
-   fill does not already carry, so it sits below 3:1 on purpose — it is a
-   hairline, not an edge. */
+/* ONE file to change per site.
+ *
+ * The first version of day 9 was a dark neutral page with a hot-pink accent and
+ * a single 880px column — which is the same shape as day 6, day 7 and day 8,
+ * and reading four of them in a row makes the run look like one template. This
+ * is a different thing: black, white and one acid lime, Anton set enormous, and
+ * a grid rather than a column. The captures are the only colour on the page;
+ * they sit greyscale in the grid and come back to full colour when you open
+ * one, so the wall reads as a wall and the evidence reads as evidence.
+ *
+ * Nothing here shares a colour with day 6 (white, burnt orange), day 7 (navy,
+ * ochre), day 8 (warm paper, green and oxblood) or the version this replaces.
+ *
+ * CONTRAST — MEASURED, against the surface each colour actually sits on, not
+ * the page behind it. Day 2 shipped three tokens measured against the page
+ * with a comment claiming they passed; all three failed where they were used.
+ *
+ *   on --color-page #0B0B0B:
+ *     ink   #FFFFFF  19.68:1  AAA
+ *     body  #CFCFCF  12.63:1  AAA
+ *     dim   #8F8F8F   6.09:1  AA
+ *     lime  #D6FF3F  17.09:1  AAA
+ *   on --color-card #161616:
+ *     ink   17.97:1  AAA  ·  body 11.53:1  AAA  ·  dim 5.60:1  AA
+ *     lime  15.61:1  AAA
+ *   the lime chip, which carries a numeral and a label:
+ *     --color-page #0B0B0B on --color-lime #D6FF3F   17.09:1  AAA
+ *
+ * --color-rule is a hairline at 1.31:1 on the page. It carries no text and no
+ * meaning the fill does not already carry, so it sits below 3:1 on purpose. */
 @theme {
-  --color-page: #0e1014;
-  --color-panel: #171a21;
-  --color-raised: #1e222b;
-  --color-rule: #2a2f3a;
+  --color-page: #0b0b0b;
+  --color-card: #161616;
+  --color-rule: #262626;
 
-  --color-ink: #f3f5f9;
-  --color-body: #c6ccd9;
-  --color-dim: #9099a9;
+  --color-ink: #ffffff;
+  --color-body: #cfcfcf;
+  --color-dim: #8f8f8f;
 
-  /* the pin, and nothing else */
-  --color-pin: #ff4d88;
-  --color-pin-ink: #14060c;
+  --color-lime: #d6ff3f;
 
-  --font-display: var(--font-display-loaded), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-loaded), "Arial Black", sans-serif;
   --font-body: var(--font-body-loaded), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-mono-loaded), ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-/* One committed look. There is no light variant: the whole page is a mount for
-   six light-coloured screenshots, and inverting the ground would collapse the
-   separation between the mount and the thing mounted on it. Every colour is
-   painted explicitly so nothing borrows a host background. */
+/* One committed look. There is no light variant: the page is a mount for
+   ninety browser captures of light-coloured websites, and inverting the ground
+   would collapse the separation between the mount and the thing mounted on it.
+   Every colour is painted explicitly so nothing borrows a host background. */
 html,
 body {
   background: var(--color-page);
@@ -68,9 +59,12 @@ body {
   font-family: var(--font-body);
 }
 :focus-visible {
-  outline: 2px solid var(--color-pin);
-  outline-offset: 3px;
-  border-radius: 3px;
+  outline: 3px solid var(--color-lime);
+  outline-offset: 2px;
+}
+::selection {
+  background: var(--color-lime);
+  color: var(--color-page);
 }
 @media (prefers-reduced-motion: reduce) {
   *,
