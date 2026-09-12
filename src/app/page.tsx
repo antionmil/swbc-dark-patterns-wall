@@ -13,23 +13,31 @@ export default function Home() {
     <main>
       {/* The number is the point. It is summed from the exhibits at build time,
           never typed, so it cannot drift from the evidence underneath it. */}
-      <header className="border-b-4 border-lime px-5 pb-9 pt-12 sm:px-8 sm:pt-16">
+      <header className="border-b-4 border-lime px-5 pb-9 pt-12 text-center sm:px-8 sm:pt-16">
         <p className="font-display text-[11px] font-extrabold uppercase tracking-[.24em] text-lime">
           What one click agrees to
         </p>
-        <h1 className="mt-2 font-display text-[clamp(58px,15vw,170px)] font-normal uppercase leading-[.84] tracking-[-.01em] text-ink">
-          {COMPANIES_NAMED.toLocaleString("en-GB")}
-          <span className="mt-2 block text-[clamp(16px,3.4vw,34px)] tracking-[.18em] text-lime">
+        {/* The number sits in its own block with a line box that CONTAINS its
+            glyphs. At leading-[.84] the box was shorter than Anton's ink, so
+            the comma's descender hung below it and the word "companies" was
+            laid out 33px inside the number — the comma landing on the "i" and
+            the "e". Measured, not guessed: the gap between the two boxes was
+            -33px and is now positive at every width. */}
+        <h1 className="mt-3 font-display font-normal uppercase text-ink">
+          <span className="block text-[clamp(58px,15vw,170px)] leading-[1.2] tracking-[-.01em]">
+            {COMPANIES_NAMED.toLocaleString("en-GB")}
+          </span>
+          <span className="mt-1 block text-[clamp(16px,3.4vw,34px)] leading-[1.2] tracking-[.18em] text-lime">
             companies
           </span>
         </h1>
-        <p className="mt-6 max-w-[62ch] text-[15.5px] leading-relaxed text-body">
+        <p className="mx-auto mt-7 max-w-[62ch] text-[15.5px] leading-relaxed text-body">
           That is the total named by the consent dialogs on this wall, added up. Each one asks for a
           single press. {SITES_VISITED} sites were visited, {SITES.length} carried something
           measurable, and {EXHIBITS.length} findings came out of it — {payWalls} where declining
           costs money and {noDecline} where the first screen offers no way to decline at all.
         </p>
-        <p className="mt-3.5 max-w-[62ch] text-[14px] leading-relaxed text-dim">
+        <p className="mx-auto mt-3.5 max-w-[62ch] text-[14px] leading-relaxed text-dim">
           Nothing here says what any of these companies meant to do. Every line is a measurement
           taken off the live page in the same visit that produced the picture beside it. Captured{" "}
           {CAPTURED}.
@@ -70,7 +78,7 @@ export default function Home() {
                       </span>
                     </div>
                     <div className="px-2.5 pb-3 pt-2">
-                      <b className="block font-display text-[clamp(20px,3.4vw,28px)] font-normal uppercase leading-none text-lime">
+                      <b className="block font-display text-[clamp(20px,3.4vw,28px)] font-normal uppercase leading-[1.25] text-lime">
                         {big.value}
                       </b>
                       <span className="mt-1 block text-[11.5px] leading-tight text-dim">
@@ -88,7 +96,7 @@ export default function Home() {
       {/* The method belongs on the page. If the reader cannot check the work,
           the work is an assertion with a screenshot attached. */}
       <section className="border-t-4 border-lime px-5 py-11 sm:px-8">
-        <h2 className="font-display text-[clamp(26px,5vw,44px)] font-normal uppercase leading-none text-ink">
+        <h2 className="font-display text-[clamp(26px,5vw,44px)] font-normal uppercase leading-[1.2] text-ink">
           How this was counted
         </h2>
         <div className="mt-6 grid max-w-[110ch] gap-4 text-[14.5px] leading-relaxed text-body sm:grid-cols-2">
@@ -127,7 +135,7 @@ export default function Home() {
               <div className="font-display text-[10px] font-extrabold uppercase tracking-[.16em] text-dim">
                 {k}
               </div>
-              <div className="mt-1 font-display text-[30px] font-normal uppercase leading-none text-lime">
+              <div className="mt-1 font-display text-[30px] font-normal uppercase leading-[1.25] text-lime">
                 {v}
               </div>
             </div>

@@ -63,7 +63,7 @@ export default async function ExhibitPage({ params }: { params: Promise<{ slug: 
           </span>
           <span className="text-dim">{e.site}</span>
         </p>
-        <h1 className="mt-3 max-w-[22ch] font-display text-[clamp(30px,6.6vw,66px)] font-normal uppercase leading-[.92] text-ink">
+        <h1 className="mt-3 max-w-[22ch] font-display text-[clamp(30px,6.6vw,66px)] font-normal uppercase leading-[1.2] text-ink">
           {big.value}
         </h1>
         <p className="mt-4 max-w-[54ch] text-[17px] leading-snug text-ink">{e.headline}</p>
@@ -130,7 +130,7 @@ export default async function ExhibitPage({ params }: { params: Promise<{ slug: 
               {f.label}
             </dt>
             <dd
-              className={`mt-1.5 font-display text-[22px] font-normal uppercase leading-none ${
+              className={`mt-1.5 font-display text-[22px] font-normal uppercase leading-[1.25] ${
                 f.heavy ? "text-lime" : "text-ink"
               }`}
             >

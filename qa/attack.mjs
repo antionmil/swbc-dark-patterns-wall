@@ -122,7 +122,46 @@ for (const e of EXHIBITS.filter((x) => x.family === "No decline offered")) {
 check("lime is a token", css.includes("--color-lime: #d6ff3f"));
 check("no hardcoded hex in the pages", !/#[0-9a-f]{6}/i.test(home + detail.replace(/viewBox[^/]+/g, "")));
 
-/* ── ATTACK 10: is the capture date real and stated? ── */
+/* ── ATTACK 10: can the display face clip its own descender again? ──
+   Measured in the browser: Anton's font box is 1.51em (ascent 1.18, descent
+   0.33) but its ink descends only 0.122em below the baseline, so with
+   symmetric half-leading the ink escapes the bottom of its own line box at
+   any line-height below 1.094em. That is exactly how the hero's comma ended
+   up sitting on the "i" and the "e" of COMPANIES. Every font-display block
+   must therefore carry a line-height at or above the threshold. */
+{
+  const THRESHOLD = 1.094;
+  /* Keyed on the TYPE SIZE, not on the `font-display` class. The first version
+     of this guard looked for `font-display` on the same element and so missed
+     the one element that actually broke: the hero number is a <span> that
+     INHERITS the display face from its <h1>, and its className carries only
+     the size and the leading. Injecting `leading-none` back onto it passed the
+     guard, which is the whole reason guards get attacked before they are
+     trusted. Large type is where a clipped descender collides; small labels
+     inherit 1.5 and are left alone. */
+  const big = (cls) => {
+    if (/text-\[clamp\(/.test(cls)) return true;
+    const px = cls.match(/text-\[(\d+(?:\.\d+)?)px\]/);
+    return px ? Number(px[1]) >= 18 : false;
+  };
+  for (const [file, src] of [["page.tsx", home], ["e/[slug]/page.tsx", detail]]) {
+    for (const m of src.matchAll(/className=[`"]([^`"]*)[`"]/g)) {
+      const cls = m[1];
+      if (!big(cls)) continue;
+      const lead = cls.match(/leading-\[([\d.]+)\]/);
+      const named = /leading-(none|tight|snug)\b/.exec(cls);
+      if (!lead && !named) continue;
+      const value = lead ? Number(lead[1]) : { none: 1, tight: 1.25, snug: 1.375 }[named[1]];
+      check(
+        `${file}: leading ${value} on large type clears Anton's descender`,
+        value >= THRESHOLD,
+        `${value} < ${THRESHOLD} in "${cls.slice(0, 74)}"`,
+      );
+    }
+  }
+}
+
+/* ── ATTACK 11: is the capture date real and stated? ── */
 check("capture date is a date", /^\d{4}-\d{2}-\d{2}$/.test(CAPTURED), CAPTURED);
 check("home states the capture date", home.includes("CAPTURED"));
 check("every exhibit page states it too", detail.includes("CAPTURED"));
