@@ -156,11 +156,10 @@ export default function Home() {
       </section>
 
       <footer className="border-t border-rule px-5 py-7 font-display text-[11px] uppercase tracking-[.14em] text-dim sm:px-8">
-        Day 9 of 26 ·{" "}
+        Built by{" "}
         <a className="text-lime hover:underline" href="https://onedaybuilt.com">
-          onedaybuilt.com
-        </a>{" "}
-        · one website a day, built in public
+          Antoine Koerber
+        </a>
       </footer>
     </main>
   );
